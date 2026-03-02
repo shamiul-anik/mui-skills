@@ -1,6 +1,6 @@
 ---
 name: MUI (Material UI & Joy UI)
-description: Comprehensive MUI v6 reference for generating modern React UIs. Covers Material UI and Joy UI installation, theming (createTheme, ThemeProvider, CSS variables), palette/colors, typography, responsive design, dark mode, the sx prop, Grid layout, component customization, styled API, and common v5→v6 migration pitfalls.
+description: Comprehensive MUI v6 reference for generating modern React UIs. Covers installation, theming (CSS variables, colorSchemes), advanced CSS (Gradients, 3D Transforms, Logical Properties), the sx prop, Grid v2, component customization, and the MUI System deep dive.
 ---
 
 # MUI v6 — LLM Reference Guide
@@ -1480,3 +1480,245 @@ import { Delete, Search } from "@mui/icons-material";
 11. **Don't override with `!important`** — Use the theme's `styleOverrides` or `sx` array syntax for specificity instead.
 
 12. **Use `Stack` for 1D layout, `Grid` for 2D** — Stack for rows/columns of items, Grid for complex dashboard-like layouts.
+
+---
+
+## 20. Gradients (Linear, Radial, Conic)
+
+MUI supports standard CSS gradients in both the `sx` prop and the `styled()` API.
+
+### Linear Gradients
+
+```jsx
+<Box
+  sx={{
+    background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
+    height: 100,
+    borderRadius: 1,
+  }}
+/>
+```
+
+### Radial & Conic Gradients
+
+```jsx
+<Box
+  sx={{
+    background: 'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
+    height: 150,
+  }}
+/>
+
+<Box
+  sx={{
+    background: 'conic-gradient(from 0deg, red, yellow, green, blue, red)',
+    width: 200,
+    height: 200,
+    borderRadius: '50%',
+  }}
+/>
+```
+
+### Theme-Aware Gradients (using palette variables)
+
+If `cssVariables: true` is enabled:
+
+```jsx
+<Box
+  sx={{
+    background: (theme) =>
+      `linear-gradient(to right, ${theme.vars.palette.primary.main}, ${theme.vars.palette.secondary.main})`,
+  }}
+/>
+```
+
+---
+
+## 21. 3D Transforms
+
+Use 3D transform properties directly within the `sx` prop or `styled()` function.
+
+```jsx
+<Box
+  sx={{
+    perspective: "1000px",
+    "&:hover .inner": {
+      transform: "rotateY(180deg)",
+    },
+  }}
+>
+  <Box
+    className="inner"
+    sx={{
+      width: 200,
+      height: 200,
+      transition: "transform 0.6s",
+      transformStyle: "preserve-3d",
+      position: "relative",
+      "& > div": {
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        backfaceVisibility: "hidden",
+      },
+    }}
+  >
+    <Box sx={{ bgcolor: "primary.main" }}>Front</Box>
+    <Box sx={{ bgcolor: "secondary.main", transform: "rotateY(180deg)" }}>
+      Back
+    </Box>
+  </Box>
+</Box>
+```
+
+| `sx` Property        | Description                                     |
+| -------------------- | ----------------------------------------------- |
+| `perspective`        | Distance from viewer to z=0 plane               |
+| `transformStyle`     | Specify if children are 3D (`preserve-3d`)      |
+| `backfaceVisibility` | Show/hide back of element (`hidden`, `visible`) |
+| `rotateX`, `rotateY` | 3D rotations                                    |
+| `translateZ`         | Z-axis translation                              |
+
+---
+
+## 22. Logical Properties (v6 Support)
+
+MUI v6 fully supports [CSS Logical Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values) in the `sx` prop. These properties adapt to the writing mode (LTR vs. RTL) automatically.
+
+| Logical Property | Physical Mapping (LTR) | MUI Spacing Support |
+| ---------------- | ---------------------- | ------------------- |
+| `paddingBlock`   | `padding-top/bottom`   | ✅ (theme.spacing)  |
+| `paddingInline`  | `padding-left/right`   | ✅ (theme.spacing)  |
+| `marginBlock`    | `margin-top/bottom`    | ✅ (theme.spacing)  |
+| `marginInline`   | `margin-left/right`    | ✅ (theme.spacing)  |
+| `blockSize`      | `height`               | ✅                  |
+| `inlineSize`     | `width`                | ✅                  |
+| `insetBlock`     | `top/bottom`           | ✅                  |
+| `insetInline`    | `left/right`           | ✅                  |
+
+### Usage Example
+
+```jsx
+<Box
+  sx={{
+    marginBlock: 2, // margin-top & margin-bottom: 16px
+    paddingInline: 4, // padding-left & padding-right: 32px
+    inlineSize: "100%", // width: 100%
+    borderInlineStart: (theme) => `4px solid ${theme.palette.primary.main}`,
+  }}
+>
+  Internationalization-ready container
+</Box>
+```
+
+---
+
+## 23. Text Shadows & Masks
+
+### Text Shadows
+
+```jsx
+<Typography
+  variant="h2"
+  sx={{
+    textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+    fontWeight: "bold",
+  }}
+>
+  Glow Effect
+</Typography>
+```
+
+### Masks
+
+Use `maskImage` (or `-webkit-mask-image`) to hide parts of an element.
+
+```jsx
+<Box
+  component="img"
+  src="photo.jpg"
+  sx={{
+    width: 300,
+    maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+    WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+  }}
+/>
+```
+
+---
+
+## 24. Advanced States & Variants (Pseudo-classes)
+
+Beyond `hover` and `focus`, the `sx` prop supports all CSS pseudo-selectors.
+
+```jsx
+<Box
+  sx={{
+    // Select every second child
+    "& > *:nth-of-type(2n)": {
+      bgcolor: "action.hover",
+    },
+    // Target everything EXCEPT the first child
+    "& > *:not(:first-of-type)": {
+      mt: 1,
+    },
+    // Only child styles
+    "&:only-of-type": {
+      border: "2px dashed blue",
+    },
+    // Disabled state (for inputs/buttons)
+    "&.Mui-disabled": {
+      opacity: 0.5,
+      pointerEvents: "none",
+    },
+  }}
+>
+  {/* Children */}
+</Box>
+```
+
+---
+
+## 25. MUI System Deep Dive
+
+For building custom component libraries or low-level layout primitives, use `@mui/system` directly.
+
+### `createBox` & `createStack`
+
+Allows creating custom Box/Stack versions with restricted or expanded system props.
+
+```js
+import { createBox } from '@mui/system';
+
+const MyBox = createBox({
+  defaultStates: { ... },
+  defaultTheme: customTheme,
+});
+```
+
+### `styled` with custom components
+
+When wrapping non-MUI components to give them system support:
+
+```jsx
+import { styled } from "@mui/material/styles";
+
+const MyComponent = ({ className }) => <div className={className}>...</div>;
+
+const StyledMyComponent = styled(MyComponent)({
+  display: "flex",
+  padding: 16,
+});
+```
+
+### The `shouldForwardProp` Trick
+
+Prevent custom internal props from reaching the DOM:
+
+```jsx
+const MyStyledButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "isFancy",
+})(({ theme, isFancy }) => ({
+  color: isFancy ? theme.palette.primary.main : theme.palette.grey[500],
+}));
+```

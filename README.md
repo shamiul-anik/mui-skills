@@ -38,6 +38,12 @@ The file is organized into **19 sections** covering everything an LLM needs:
 | 17      | **Import Best Practices** — Named vs. Barrel imports, Tree-shaking                                        |
 | 18      | **Migration Pitfalls (v5 → v6)** — Critical "DO NOT / USE THIS" table                                     |
 | 19      | **Design Best Practices** — Mobile-first, semantic HTML, specific customization tips                      |
+| 20      | **Gradients** — Linear, Radial, and Conic gradients in `sx` and `styled`                                  |
+| 21      | **3D Transforms** — `perspective`, `rotateX/Y`, `transformStyle` in MUI                                   |
+| 22      | **Logical Properties** — v6 support for `paddingBlock`, `marginInline`, etc.                              |
+| 23      | **Text Shadows & Masks** — Advanced typography and image masking patterns                                 |
+| 24      | **Advanced States & Variants** — Pseudo-selectors (`:nth-of-type`, `:not`, etc.) in `sx`                  |
+| 25      | **MUI System Deep Dive** — `createBox`, `createStack`, and custom system components                       |
 
 ## 🛠 How to Use
 
