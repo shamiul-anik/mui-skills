@@ -1522,6 +1522,28 @@ MUI v7 standardized the `slots` / `slotProps` API across **all** components. The
 // <Autocomplete PaperComponent={...} PopperComponent={...} />
 ```
 
+### Key Component Slots
+
+| Component      | Common Slots                                                                      |
+| -------------- | --------------------------------------------------------------------------------- |
+| `TextField`    | `root`, `input`, `inputLabel`, `formHelperText`, `htmlInput`, `select`            |
+| `Autocomplete` | `root`, `input`, `clearIndicator`, `popupIndicator`, `listbox`, `paper`, `popper` |
+| `Avatar`       | `root`, `img`, `fallback`                                                         |
+| `Badge`        | `root`, `badge`                                                                   |
+| `Dialog`       | `root`, `backdrop`, `paper`, `container`                                          |
+
+### Prop to `slotProps` Mapping
+
+| Old Prop              | v7 slotProps Equivalent                   |
+| --------------------- | ----------------------------------------- |
+| `InputProps`          | `slotProps={{ input: { ... } }}`          |
+| `inputProps`          | `slotProps={{ htmlInput: { ... } }}`      |
+| `InputLabelProps`     | `slotProps={{ inputLabel: { ... } }}`     |
+| `FormHelperTextProps` | `slotProps={{ formHelperText: { ... } }}` |
+| `SelectProps`         | `slotProps={{ select: { ... } }}`         |
+| `PaperComponent`      | `slots={{ paper: ... }}`                  |
+| `PopperComponent`     | `slots={{ popper: ... }}`                 |
+
 ### Key Points
 
 - `slots` lets you replace internal component elements with custom components
@@ -1584,6 +1606,21 @@ If you need the old re-render behavior:
 
 ```jsx
 <ThemeProvider forceThemeRerender />
+```
+
+### v7 Codemods
+
+Use these commands for automated migration:
+
+```bash
+# Rename Grid v1 to GridLegacy and upgrade Grid2 to Grid
+npx @mui/codemod v7.0.0/grid-props <path/to/folder>
+
+# Update InputLabel size="normal" to "medium"
+npx @mui/codemod v7.0.0/input-label-size-normal-medium <path/to/folder>
+
+# Move graduated components from @mui/lab to @mui/material
+npx @mui/codemod v7.0.0/lab-removed-components <path/to/folder>
 ```
 
 ---

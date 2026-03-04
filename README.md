@@ -1,25 +1,26 @@
-# MUI v6 Skills for LLMs
+# MUI v7 Skills for LLMs
 
-A comprehensive, AI-optimized reference guide for **MUI v6** (Material UI & Joy UI). This repository contains a `SKILL.md` file designed to help LLMs (Claude, Gemini, ChatGPT, GitHub Copilot) understand and apply the latest MUI features, best practices, and migration patterns.
+A comprehensive, AI-optimized reference guide for **MUI v7** (Material UI & Joy UI). This repository contains a `SKILL.md` file designed to help LLMs (Claude, Gemini, ChatGPT, GitHub Copilot) understand and apply the latest MUI features, best practices, and migration patterns.
 
 ## 🚀 Why This Exists
 
-LLMs are often trained on older data. When working with **MUI v6**, they frequently suggest deprecated v5 patterns (like legacy Grid, `theme.palette.mode` checks, or barrel imports). This skill file provides the necessary context for AI models to:
+LLMs are often trained on older data. When working with **MUI v7**, they frequently suggest deprecated v5 or v6 patterns (like legacy Grid, `InputProps` instead of `slotProps`, or barrel/deep imports). This skill file provides the necessary context for AI models to:
 
-- Use the new **unified Grid v2** system.
+- Use the **unified Grid** system (v2 promoted to default).
+- Implement the **Standardized Slot Pattern** (`slots` / `slotProps`) across all components.
 - Leverage **CSS Theme Variables** and the `colorSchemes` API for seamless dark mode.
-- Apply the **`sx` prop** and **`styled()` API** correctly with modern v6 patterns.
-- Implement **Dark Mode** without SSR flicker using `InitColorSchemeScript`.
-- Avoid common **v5 → v6 migration pitfalls**.
-- Follow **Import Best Practices** for optimal bundle size.
+- Enable **CSS Layers** via `enableCssLayer` for perfect Tailwind CSS v4 integration.
+- Apply the **`sx` prop** and **`styled()` API** correctly with modern v7 patterns.
+- Avoid common **v5/v6 → v7 migration pitfalls**.
+- Follow **Import Best Practices** (restricting deep imports).
 
 ## 📂 What's Inside `SKILL.md`
 
-The file is organized into **19 sections** covering everything an LLM needs:
+The file is organized into **27 sections** covering everything an LLM needs:
 
 | Section | Topic                                                                                                     |
 | ------- | --------------------------------------------------------------------------------------------------------- |
-| 1       | **Installation** — Material UI, Joy UI, Peer Deps, Fonts, Icons, CssBaseline                              |
+| 1       | **Installation** — Material UI, Joy UI, Peer Deps (React 18 `react-is` req), Fonts, Icons, CssBaseline    |
 | 2       | **Theming** — `createTheme`, `ThemeProvider`, custom variables, nesting                                   |
 | 3       | **Palette & Colors** — Tokens (main/light/dark), default colors, custom palettes, `augmentColor`          |
 | 4       | **Typography** — Default variants, customization, custom variants, responsive font sizes                  |
@@ -27,7 +28,7 @@ The file is organized into **19 sections** covering everything an LLM needs:
 | 6       | **The `sx` Prop** — Shorthands, responsive values, callbacks, array values, nesting                       |
 | 7       | **Dark Mode** — `colorSchemes`, `useColorScheme`, `applyStyles`, SSR flicker prevention                   |
 | 8       | **CSS Theme Variables** — Advantages, activation (`cssVariables: true`), usage                            |
-| 9       | **Grid System (Grid v2)** — Unified Grid, size prop, responsive, auto-layout, offsets                     |
+| 9       | **Grid System** — Unified Grid (replacing Grid v1/Grid2), size prop, responsive, auto-layout              |
 | 10      | **Layout Components** — `Box`, `Stack`, `Container`                                                       |
 | 11      | **Component Customization** — `defaultProps`, `styleOverrides`, custom variants                           |
 | 12      | **Common Components Reference** — Quick reference for Inputs, Data Display, Surfaces, Feedback components |
@@ -35,15 +36,17 @@ The file is organized into **19 sections** covering everything an LLM needs:
 | 14      | **Spacing System** — Factor-based spacing, custom spacing functions                                       |
 | 15      | **Transitions & Animations** — Theme transitions, Transition components (Fade, Grow, etc.)                |
 | 16      | **Joy UI Quick Reference** — Differences from Material UI, CSS variables, variants                        |
-| 17      | **Import Best Practices** — Named vs. Barrel imports, Tree-shaking                                        |
-| 18      | **Migration Pitfalls (v5 → v6)** — Critical "DO NOT / USE THIS" table                                     |
-| 19      | **Design Best Practices** — Mobile-first, semantic HTML, specific customization tips                      |
-| 20      | **Gradients** — Linear, Radial, and Conic gradients in `sx` and `styled`                                  |
-| 21      | **3D Transforms** — `perspective`, `rotateX/Y`, `transformStyle` in MUI                                   |
-| 22      | **Logical Properties** — v6 support for `paddingBlock`, `marginInline`, etc.                              |
-| 23      | **Text Shadows & Masks** — Advanced typography and image masking patterns                                 |
-| 24      | **Advanced States & Variants** — Pseudo-selectors (`:nth-of-type`, `:not`, etc.) in `sx`                  |
-| 25      | **MUI System Deep Dive** — `createBox`, `createStack`, and custom system components                       |
+| 17      | **Import Best Practices** — Named vs. Barrel imports, Deep Import restrictions                            |
+| 18      | **CSS Layers (v7)** — `enableCssLayer` for Tailwind CSS v4 and style precedence control                   |
+| 19      | **Standardized Slot Pattern (v7)** — `slots` / `slotProps` reference tables and mapping                   |
+| 20      | **Migration Pitfalls (v5/v6 → v7)** — Critical migration table, Codemods, and Theme behavior changes      |
+| 21      | **Design Best Practices** — Mobile-first, semantic HTML, v7-specific customization tips                   |
+| 22      | **Gradients** — Linear, Radial, and Conic gradients in `sx` and `styled`                                  |
+| 23      | **3D Transforms** — `perspective`, `rotateX/Y`, `transformStyle` in MUI                                   |
+| 24      | **Logical Properties** — v7 support for `paddingBlock`, `marginInline`, etc.                              |
+| 25      | **Text Shadows & Masks** — Advanced typography and image masking patterns                                 |
+| 26      | **Advanced States & Variants** — Pseudo-selectors (`:nth-of-type`, `:not`, etc.) in `sx`                  |
+| 27      | **MUI System Deep Dive** — `createBox`, `createStack`, and custom system components                       |
 
 ## 🛠 How to Use
 
@@ -91,14 +94,15 @@ your-project/
 ├── CLAUDE.md   ← Paste SKILL.md content here
 ```
 
-## 🆕 v6 Highlights (2025–2026)
+## 🆕 v7 Highlights (2025–2026)
 
-- **Unified Grid v2**: Replaces the old `Grid` API with a simpler, more robust layout system.
-- **CSS Theme Variables**: Native CSS variables for all theme tokens.
-- **Improved Color Schemes**: Simplified light/dark mode configuration via `colorSchemes`.
-- **Zero-Flicker Dark Mode**: Using `InitColorSchemeScript` for perfect SSR support.
-- **Loading Button Graduation**: Moved from Lab to Core.
-- **React 19 Support**: Full compatibility with the latest React version.
+- **Standardized Slot Pattern**: Consistent `slots` and `slotProps` API across all components.
+- **Improved ESM Support**: Updated package layout for better integration with Vite, webpack, and Node.js.
+- **CSS Layers**: Built-in support for CSS Layers (`@layer mui`) to manage style precedence.
+- **Unified Grid**: `Grid2` promoted to the primary `Grid` component.
+- **Removal of v5 Deprecations**: Cleaned up API surface by removing long-deprecated functions like `createMuiTheme`.
+- **CSS Variable Performance**: Themes with CSS variables no longer trigger unnecessary re-renders on mode toggle.
+- **React 19 Readiness**: Optimized for the latest React features and best practices.
 
 ## 📄 License
 
