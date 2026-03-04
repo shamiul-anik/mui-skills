@@ -1,12 +1,12 @@
 ---
 name: MUI (Material UI & Joy UI)
-description: Comprehensive MUI v6 reference for generating modern React UIs. Covers installation, theming (CSS variables, colorSchemes), advanced CSS (Gradients, 3D Transforms, Logical Properties), the sx prop, Grid v2, component customization, and the MUI System deep dive.
+description: Comprehensive MUI v7 reference for generating modern React UIs. Covers installation, theming (CSS variables, colorSchemes), advanced CSS (Gradients, 3D Transforms, Logical Properties), the sx prop, Grid (unified), component customization (standardized slots), CSS layers, and the MUI System deep dive.
 ---
 
-# MUI v6 — LLM Reference Guide
+# MUI v7 — LLM Reference Guide
 
-> **Current Version**: Material UI 6.x (2025–2026)
-> MUI v6 introduced CSS theme variables, the `colorSchemes` API, `Grid` v2 (unified), and React 19 support. If your prior knowledge is based on v5, **read the "Migration Pitfalls" section** before generating any code.
+> **Current Version**: Material UI 7.x (2025–2026)
+> MUI v7 builds on v6 with improved ESM support, standardized slot pattern (`slots`/`slotProps`), CSS layers via `enableCssLayer`, Grid2→Grid rename, and removed v5 deprecated APIs. If your prior knowledge is based on v5 or v6, **read the "Migration Pitfalls" section** before generating any code.
 
 ---
 
@@ -55,6 +55,16 @@ pnpm add @mui/joy @emotion/react @emotion/styled
   }
 }
 ```
+
+> **Important (React 18 and below)**: MUI v7 uses `react-is@19`. If you're on React 18 or below, you must install a matching `react-is` version and set `overrides` (npm) or `resolutions` (yarn) in `package.json` to prevent runtime errors:
+>
+> ```bash
+> npm install react-is@18.3.1
+> ```
+>
+> ```json
+> { "overrides": { "react-is": "^18.3.1" } }
+> ```
 
 ### Roboto Font (Material UI default)
 
@@ -157,7 +167,7 @@ function App() {
 | `zIndex`       | Z-index values for layered components    |
 | `transitions`  | Duration, easing for animations          |
 | `components`   | Component-level default props & styles   |
-| `colorSchemes` | Light/dark mode color definitions (v6)   |
+| `colorSchemes` | Light/dark mode color definitions (v6+)  |
 
 ### Accessing the Theme
 
@@ -561,7 +571,7 @@ The `sx` prop is the primary way to add one-off custom styles to MUI components.
 />
 ```
 
-> **v6 Change**: Callback as individual value is deprecated. Use callback at the top level.
+> **v6+ Change**: Callback as individual value is deprecated. Use callback at the top level.
 
 ### Array Values (Conditional Styles)
 
@@ -614,7 +624,7 @@ function App() {
 }
 ```
 
-### Built-in Light/Dark Support (CSS Variables — v6 Recommended)
+### Built-in Light/Dark Support (CSS Variables — v6+ Recommended)
 
 ```jsx
 const theme = createTheme({
@@ -655,7 +665,7 @@ function ModeToggle() {
 ### Styling in Dark Mode with `theme.applyStyles()`
 
 ```jsx
-// Preferred approach (v6+)
+// Preferred approach (v6/v7)
 <Box
   sx={(theme) => ({
     bgcolor: "#fff",
@@ -714,9 +724,9 @@ Components automatically use `var(--mui-palette-primary-main)` instead of raw va
 
 ---
 
-## 9. Grid System (Grid v2)
+## 9. Grid System
 
-MUI v6 uses a unified `Grid` component (CSS Flexbox-based, 12-column system).
+MUI v7 uses a unified `Grid` component (CSS Flexbox-based, 12-column system). In v7, the old `Grid` (v1) was renamed to `GridLegacy`, and `Grid2` was promoted to `Grid`.
 
 ### Basic Usage
 
@@ -1407,6 +1417,15 @@ import TextField from "@mui/material/TextField";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 ```
 
+> **v7 Breaking Change**: Deep imports with more than one level are no longer supported.
+>
+> ```jsx
+> // ❌ No longer works in v7:
+> import createTheme from "@mui/material/styles/createTheme";
+> // ✅ Use named import instead:
+> import { createTheme } from "@mui/material/styles";
+> ```
+
 ### Barrel Imports (Convenient but larger bundles)
 
 ```jsx
@@ -1427,23 +1446,113 @@ import { Delete, Search } from "@mui/icons-material";
 
 ---
 
-## 18. Migration Pitfalls (v5 → v6)
+## 18. CSS Layers (v7)
 
-> **CRITICAL**: LLMs trained on older data will suggest deprecated v5 patterns. Always use the v6 patterns below.
+MUI v7 supports opt-in CSS layers via the `enableCssLayer` prop. This wraps MUI styles in a `@layer mui` rule, improving integration with utility-first frameworks like Tailwind CSS v4 and giving you full control over style precedence.
 
-| ❌ v5 (DO NOT USE)                                      | ✅ v6 (USE THIS)                                                   |
+### Client-side Apps (Vite, CRA)
+
+```jsx
+import { StyledEngineProvider } from "@mui/material/styles";
+
+function App() {
+  return (
+    <StyledEngineProvider enableCssLayer>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {/* Your app */}
+      </ThemeProvider>
+    </StyledEngineProvider>
+  );
+}
+```
+
+### Next.js App Router
+
+```jsx
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          {children}
+        </AppRouterCacheProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### Benefits
+
+- Avoids specificity conflicts with Tailwind CSS v4 and other utility frameworks
+- Clear style ordering in browser DevTools
+- Your custom CSS can easily override MUI styles without `!important`
+
+---
+
+## 19. Standardized Slot Pattern (v7)
+
+MUI v7 standardized the `slots` / `slotProps` API across **all** components. The older `components` / `componentsProps` props are removed.
+
+### Usage
+
+```jsx
+// ✅ v7: Use slots and slotProps
+<TextField
+  slots={{ input: CustomInput }}
+  slotProps={{
+    input: { className: 'custom-input' },
+    htmlInput: { 'aria-label': 'Name' },
+  }}
+/>
+
+<Autocomplete
+  slots={{ paper: CustomPaper, popper: CustomPopper }}
+  slotProps={{
+    paper: { elevation: 8 },
+    listbox: { sx: { maxHeight: 300 } },
+  }}
+/>
+
+// ❌ v5/v6 deprecated (removed in v7):
+// <TextField InputProps={{ ... }} inputProps={{ ... }} />
+// <Autocomplete PaperComponent={...} PopperComponent={...} />
+```
+
+### Key Points
+
+- `slots` lets you replace internal component elements with custom components
+- `slotProps` passes props to each slot's rendered element
+- Consistent API across all MUI components
+
+---
+
+## 20. Migration Pitfalls (v5/v6 → v7)
+
+> **CRITICAL**: LLMs trained on older data will suggest deprecated v5/v6 patterns. Always use the v7 patterns below.
+
+| ❌ v5/v6 (DO NOT USE)                                   | ✅ v7 (USE THIS)                                                   |
 | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| `<Grid item xs={6}>`                                    | `<Grid size={{ xs: 6 }}>` (unified Grid v2)                        |
+| `<Grid item xs={6}>`                                    | `<Grid size={{ xs: 6 }}>` (unified Grid)                           |
 | `<Grid item xs={12} sm={6}>`                            | `<Grid size={{ xs: 12, sm: 6 }}>`                                  |
 | `<Grid container item>`                                 | `<Grid container>` (all Grids are items by default)                |
+| `import Grid from '@mui/material/Grid2'`                | `import Grid from '@mui/material/Grid'` (Grid2 is now Grid)        |
 | `palette.mode: 'dark'` only                             | `colorSchemes: { dark: true }` + `cssVariables: true`              |
 | `sx={{ color: (theme) => theme.palette.primary.main }}` | `sx={(theme) => ({ color: theme.palette.primary.main })}`          |
-| `theme.palette.mode === 'dark' ? ... : ...`             | `theme.applyStyles('dark', { ... })`                               |
-| `@mui/styles` (JSS)                                     | `styled()` or `sx` prop (Emotion)                                  |
-| `makeStyles()` / `withStyles()`                         | `styled()` or `sx` prop                                            |
+| `theme.palette.mode === 'dark' ? ... : ...`             | `theme.applyStyles('dark', { ... })` or `theme.vars.*`             |
+| Deep imports: `@mui/material/styles/createTheme`        | `import { createTheme } from '@mui/material/styles'`               |
+| `InputProps`, `inputProps`, `PaperComponent`, etc.      | `slots` / `slotProps` (standardized in v7)                         |
+| `<InputLabel size="normal">`                            | `<InputLabel size="medium">` (standardized in v7)                  |
+| `@mui/styles` (JSS) / `makeStyles()` / `withStyles()`   | `styled()` or `sx` prop (Emotion)                                  |
 | `<Hidden xsDown>` / `<Hidden mdUp>`                     | `useMediaQuery()` or responsive `sx={{ display: { xs: 'none' } }}` |
+| `onBackdropClick` on Dialog/Modal                       | Use `onClose` callback with `reason === 'backdropClick'`           |
+| `createMuiTheme()`                                      | `createTheme()`                                                    |
+| `experimentalStyled`                                    | `styled`                                                           |
+| Components from `@mui/lab` (graduated)                  | Import from `@mui/material` (Alert, Skeleton, Rating, etc.)        |
 | No `shouldForwardProp` in styled                        | Use `shouldForwardProp` to prevent custom props on DOM             |
-| Components from `@mui/lab` (graduated)                  | Import from `@mui/material` (e.g., `LoadingButton`)                |
 
 ### What Still Works
 
@@ -1452,10 +1561,34 @@ import { Delete, Search } from "@mui/icons-material";
 - `createTheme()` and `ThemeProvider` are the same.
 - The `styled()` API from `@mui/material/styles` is the same.
 - Color palette keys (`primary`, `secondary`, `error`, etc.) are unchanged.
+- CSS variables, `colorSchemes`, `theme.applyStyles()` all carry over from v6.
+
+### v7 Theme Behavior Change
+
+With CSS variables enabled + light/dark color schemes, the theme object **no longer re-renders** when toggling dark mode. Use `theme.vars.*` to reference CSS variables directly in styles:
+
+```jsx
+const Custom = styled("div")(({ theme }) => ({
+  color: theme.vars.palette.text.primary,
+  background: theme.vars.palette.primary.main,
+}));
+```
+
+For runtime calculations, use `color-mix()` instead of JS:
+
+```jsx
+color: `color-mix(in srgb, ${theme.vars.palette.text.primary}, transparent 50%)`;
+```
+
+If you need the old re-render behavior:
+
+```jsx
+<ThemeProvider forceThemeRerender />
+```
 
 ---
 
-## 19. Design Best Practices
+## 21. Design Best Practices
 
 1. **Always use `CssBaseline`** — Normalizes browser defaults and applies theme background/text colors.
 
@@ -1481,9 +1614,15 @@ import { Delete, Search } from "@mui/icons-material";
 
 12. **Use `Stack` for 1D layout, `Grid` for 2D** — Stack for rows/columns of items, Grid for complex dashboard-like layouts.
 
+13. **Use `slots`/`slotProps` for component customization** — The standardized v7 API replacing the old `InputProps`, `componentsProps`, etc.
+
+14. **Use `theme.vars.*` for CSS variable references** — When CSS variables are enabled, prefer `theme.vars.palette.primary.main` over `theme.palette.primary.main` for better dark mode performance.
+
+15. **Enable CSS layers for Tailwind integration** — Use `enableCssLayer` on `StyledEngineProvider` to avoid specificity conflicts.
+
 ---
 
-## 20. Gradients (Linear, Radial, Conic)
+## 22. Gradients (Linear, Radial, Conic)
 
 MUI supports standard CSS gradients in both the `sx` prop and the `styled()` API.
 
@@ -1534,7 +1673,7 @@ If `cssVariables: true` is enabled:
 
 ---
 
-## 21. 3D Transforms
+## 23. 3D Transforms
 
 Use 3D transform properties directly within the `sx` prop or `styled()` function.
 
@@ -1581,7 +1720,7 @@ Use 3D transform properties directly within the `sx` prop or `styled()` function
 
 ---
 
-## 22. Logical Properties (v6 Support)
+## 24. Logical Properties (v6+ Support)
 
 MUI v6 fully supports [CSS Logical Properties](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values) in the `sx` prop. These properties adapt to the writing mode (LTR vs. RTL) automatically.
 
@@ -1613,7 +1752,7 @@ MUI v6 fully supports [CSS Logical Properties](https://developer.mozilla.org/en-
 
 ---
 
-## 23. Text Shadows & Masks
+## 25. Text Shadows & Masks
 
 ### Text Shadows
 
@@ -1647,7 +1786,7 @@ Use `maskImage` (or `-webkit-mask-image`) to hide parts of an element.
 
 ---
 
-## 24. Advanced States & Variants (Pseudo-classes)
+## 26. Advanced States & Variants (Pseudo-classes)
 
 Beyond `hover` and `focus`, the `sx` prop supports all CSS pseudo-selectors.
 
@@ -1679,7 +1818,7 @@ Beyond `hover` and `focus`, the `sx` prop supports all CSS pseudo-selectors.
 
 ---
 
-## 25. MUI System Deep Dive
+## 27. MUI System Deep Dive
 
 For building custom component libraries or low-level layout primitives, use `@mui/system` directly.
 
